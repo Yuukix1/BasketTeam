@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static Mysqlx.Notice.Warning.Types;
 
 namespace basket_team
 {
@@ -12,8 +13,7 @@ namespace basket_team
     {
         public static Connect conn = new Connect();
 
-
-        public static void uj()
+        public static void HozzaAdas()
         {
             Console.Write("Add meg a játékos nevét: ");
             string name = Console.ReadLine();
@@ -38,27 +38,37 @@ namespace basket_team
 
             Console.WriteLine("Az új játékos sikeresen hozzáadva az adatbázishoz!");
         }
-        public static void GetAllData()
+
+        public static void Torles()
+        {
+            Console.Write("Add meg a törölni kívánt játékos azonosítóját (Id): ");
+            int id = int.Parse(Console.ReadLine());
+
+            conn.Connection.Open();
+
+            string sql = "DELETE FROM Player WHERE Id = @Id";
+            MySqlCommand cmd = new MySqlCommand(sql, conn.Connection);
+            cmd.Parameters.AddWithValue("@Id", id);
+
+            cmd.ExecuteNonQuery();
+
+            conn.Connection.Close();
+
+            Console.WriteLine("A játékos törölve az adatbázisból.");
+        }
+
+        public static void KiIras()
         {
             conn.Connection.Open();
-            string sql = "SELECT * FROM player";
+
+            string sql = "SELECT * FROM Player";
             MySqlCommand cmd = new MySqlCommand(sql, conn.Connection);
             MySqlDataReader dr = cmd.ExecuteReader();
 
-            Console.WriteLine("Játékosok listája:");
-
+            Console.WriteLine("\nJátékosok listája:");
             while (dr.Read())
             {
-                var player = new
-                {
-                    Id = dr.GetInt32(0),
-                    Name = dr.GetString(1),
-                    Height = dr.GetInt32(2),
-                    Weight = dr.GetInt32(3),
-                    CreatedTime = dr.GetDateTime(4),
-                };
-
-                Console.WriteLine($"Játékos adatok: {player.Name}, {player.Height}cm, {player.Weight}kg, {player.CreatedTime}");
+                Console.WriteLine($"Id: {dr.GetInt32(0)}, Név: {dr.GetString(1)}, Magasság: {dr.GetInt32(2)} cm, Súly: {dr.GetInt32(3)} kg, Hozzáadva: {dr.GetDateTime(4)}");
             }
 
             dr.Close();
@@ -67,8 +77,35 @@ namespace basket_team
 
         static void Main(string[] args)
         {
-            GetAllData();
-            uj();
+            while (true)
+            {
+                Console.WriteLine("\nKosárlabda Csapat Kezelő");
+                Console.WriteLine("1. Új játékos hozzáadása");
+                Console.WriteLine("2. Játékos törlése");
+                Console.WriteLine("3. Játékosok listázása");
+                Console.WriteLine("4. Kilépés");
+                Console.Write("Válassz egy opciót: ");
+
+                string valasztas = Console.ReadLine();
+
+                switch (valasztas)
+                {
+                    case "1":
+                        HozzaAdas();
+                        break;
+                    case "2":
+                        Torles();
+                        break;
+                    case "3":
+                        KiIras();
+                        break;
+                    case "4":
+                        return;
+                    default:
+                        Console.WriteLine("Érvénytelen választás, próbáld újra!");
+                        break;
+                }
+            }
         }
     }
 }
