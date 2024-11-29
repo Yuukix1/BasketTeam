@@ -57,6 +57,8 @@ namespace basket_team
             Console.WriteLine("A játékos törölve az adatbázisból.");
         }
 
+
+
         public static void KiIras()
         {
             conn.Connection.Open();
@@ -74,6 +76,35 @@ namespace basket_team
             dr.Close();
             conn.Connection.Close();
         }
+        public static void Frissit()
+        {
+            conn.Connection.Open();
+
+            Console.Write("Add meg a frissítendő játékos ID-ját: ");
+            int id = int.Parse(Console.ReadLine());
+
+            Console.Write("Add meg az új nevet: ");
+            string name = Console.ReadLine();
+
+            Console.Write("Add meg az új magasságot (cm): ");
+            int height = int.Parse(Console.ReadLine());
+
+            Console.Write("Add meg az új súlyt (kg): ");
+            int weight = int.Parse(Console.ReadLine());
+
+            string sql = "UPDATE Player SET Name = @Name, Height = @Height, Weight = @Weight WHERE Id = @Id;";
+            MySqlCommand cmd = new MySqlCommand(sql, conn.Connection);
+
+            cmd.Parameters.AddWithValue("@Name", name);
+            cmd.Parameters.AddWithValue("@Height", height);
+            cmd.Parameters.AddWithValue("@Weight", weight);
+            cmd.Parameters.AddWithValue("@Id", id);
+
+            cmd.ExecuteNonQuery();
+            conn.Connection.Close();
+
+            Console.WriteLine("A játékos adatai sikeresen frissítve!");
+        }
 
         static void Main(string[] args)
         {
@@ -83,7 +114,8 @@ namespace basket_team
                 Console.WriteLine("1. Új játékos hozzáadása");
                 Console.WriteLine("2. Játékos törlése");
                 Console.WriteLine("3. Játékosok listázása");
-                Console.WriteLine("4. Kilépés");
+                Console.WriteLine("4 - Játékos frissítése");
+                Console.WriteLine("5. Kilépés");
                 Console.Write("Válassz egy opciót: ");
 
                 string valasztas = Console.ReadLine();
@@ -100,7 +132,9 @@ namespace basket_team
                         KiIras();
                         break;
                     case "4":
-                        return;
+                        Frissit();
+                        break;
+                    case "5":
                     default:
                         Console.WriteLine("Érvénytelen választás, próbáld újra!");
                         break;
